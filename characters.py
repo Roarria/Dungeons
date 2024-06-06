@@ -1,8 +1,13 @@
+from items import Item
+
 class Character:
     def __init__(self, name = None):
         self.name = name
         self.life = 100
         self.strength = (10, 20)
+
+    def __str__(self):
+        return self.name
 
 
 class Hero(Character):
@@ -10,15 +15,11 @@ class Hero(Character):
         super().__init__(name)
         self.hero_class = None
         self.items = []
-        self.escape_chances = 50
+        self.escape_chance = 50
         self.disarm_chance = 50
-    
-    def rename(self):
-        self.name = input("Podaj imie: ")
 
     def class_choice(self):
-        print("Dostepne klasy: wojownik, wlamywacz, zdrajca.")
-        print() # co robi kazda z klas
+        print("\nDostepne klasy: wojownik, wlamywacz, zdrajca.\nWojownik: ma wieksza sile w walce.\nWlamywacz: lepiej rozbraja pulapki.\nZdrajca: ucieczka z pola walki czesciej konczy sie sukcesem.")
         while True:
             choice = input("Wybierz klase: ").casefold()
             if choice == "wojownik":
@@ -30,11 +31,22 @@ class Hero(Character):
                 break
 
             elif choice == "zdrajca":
-                self.escape_chances += 25
+                self.escape_chance += 25
                 break
 
             else:
                 print("Nie ma takiej klasy. Sprobuj ponownie: ")
+    
+    def equip_item(self, item):
+        self.items.append(item)
+
+    def use_item(self, item):
+        for stat, value in item.stats.items():
+            try:
+                setattr(self, stat, getattr(self, stat) + value)
+            except Exception as e:
+                print(e)
+
 
 
 class Enemy(Character):
