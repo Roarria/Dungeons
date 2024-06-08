@@ -13,7 +13,7 @@ class Character:
 class Hero(Character):
     def __init__(self, name = None):
         super().__init__(name)
-        self.hero_class = None
+        self.hero_class = None  # czy potrzebne??
         self.items = []
         self.escape_chance = 50
         self.disarm_chance = 50
@@ -24,14 +24,17 @@ class Hero(Character):
             choice = input("Wybierz klase: ").casefold()
             if choice == "wojownik":
                 self.strength = (18, 28)
+                self.hero_class  = choice
                 break
 
             elif choice == "wlamywacz":
                 self.disarm_chance += 25
+                self.hero_class = choice
                 break
 
             elif choice == "zdrajca":
                 self.escape_chance += 25
+                self.hero_class = choice
                 break
 
             else:
@@ -40,17 +43,28 @@ class Hero(Character):
     def equip_item(self, item):
         self.items.append(item)
 
+    def get_stats(self):
+        return {'life': self.life, 'strength': self.strength, 'escape_chance': self.escape_chance, 'disarm_chance': self.disarm_chance}
+
     def use_item(self, item):
         for stat, value in item.stats.items():
             try:
-                setattr(self, stat, getattr(self, stat) + value)
+                if isinstance(getattr(self, stat), int):
+                    setattr(self, stat, min(100, getattr(self, stat) + value))
+
+                elif isinstance(getattr(self, stat), tuple):
+                    x, y = getattr(self, stat)
+                    x += value
+                    y += value
+                    setattr(self, stat, (x, y))
+
             except Exception as e:
                 print(e)
 
 
 
 class Enemy(Character):
-    def __init__(self, name = None):
+    def __init__(self, name: str):
         super().__init__(name)
         self.shield = (10, 20)
     
@@ -62,4 +76,3 @@ class Enemy(Character):
         
     def change_shield(self, shield):
         self.shield = shield
-
