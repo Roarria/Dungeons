@@ -17,16 +17,16 @@ class Treasure(Room):
 
     def enter(self, hero: Hero):
         input("Otwierasz pokoj. Na srodku stoi skrzynia. Nie mozesz jej nie otworzyc. (wcisnij Enter)")
+        treasures_dict = {}
         treasures = sample(self.treasures_pool[self.difficulty], k=2)
-        treas_names  = []
         for treasure in treasures:
             print(treasure)
-            treas_names.append(treasure.get_name())
+            treasures_dict[treasure.get_name()] = treasure
 
         while True:
-            choice = input('Ktory skarb wybierasz? ')
-            if choice in treas_names:
-                return choice
+            chosen_treas = input('Ktory skarb wybierasz? ').casefold()
+            if chosen_treas in treasures_dict:
+                return treasures_dict[chosen_treas]
             else:
                 print('Nie ma takiego skarbu. Sprobuj wybrac ponownie.')
 
@@ -42,15 +42,34 @@ class Fight(Room):    # 3-5 i boss
         input(f"Otwierasz niepewnie drzwi. Na twojej drodze staje {enemy}. Szykuj sie do walki. (wcisnij Enter)")
 
         while enemy.life > 0:
-            enemy.life = 0
-            pass
+            print(f'Status przeciwnika: {enemy.get_stats()}')
+            enemy_move = enemy.choice()
 
-"""  name, life, strength, shield
-wyswietl statystyki przeciwnika
-wyswietl planowany ruch (medota odpowiadajaca za ruch: atak, obrona)
-decyduj (atak, obrona, uzycie przedmiotu, ucieczka)
-[petla]
-"""
+            if  enemy_move == 'attack':
+                attack = enemy.attack()
+                defence = 0
+                print(f'Planowany ruch przeciwnika: {enemy_move} - {attack}')
+            elif enemy_move == 'defence':
+                attack = 0
+                defence = enemy.defence()
+                print(f'Planowany ruch przeciwnika: {enemy_move} - {defence}')
+            
+            print(f'Status przeciwnika: {hero.get_stats()}')
+            hero_move = hero.choice()
+            if hero_move == 'atak':
+                enemy.life -= max(hero.attack() - defence, 0)
+
+            elif hero_move == 'obrona':
+                attack -= hero.defence()
+
+            elif hero_move == 'ucieczka':
+                if hero.escape_try():
+                    break
+            
+            hero.life -= attack
+            if hero.life <= 0:
+                return  'game over'
+            print()
 
 
 class Trap(Room):

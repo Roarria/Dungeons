@@ -1,13 +1,31 @@
+from abc import abstractmethod
 from items import Item
+from random import choice, randint, choices
 
 class Character:
     def __init__(self, name = None):
         self.name = name
         self.life = 100
         self.strength = (10, 20)
+        self.shield = (10, 20)
 
     def __str__(self):
         return self.name
+    
+    def attack(self):
+        return randint(self.strength[0], self.strength[1])
+    
+    def defence(self):
+        return randint(self.shield[0], self.shield[1])
+    
+    @abstractmethod
+    def choice(self):
+        pass
+
+    @abstractmethod
+    def get_stats(self):
+        pass
+
 
 
 class Hero(Character):
@@ -19,7 +37,7 @@ class Hero(Character):
         self.disarm_chance = 50
 
     def class_choice(self):
-        print("\nDostepne klasy: wojownik, wlamywacz, zdrajca.\nWojownik: ma wieksza sile w walce.\nWlamywacz: lepiej rozbraja pulapki.\nZdrajca: ucieczka z pola walki czesciej konczy sie sukcesem.")
+        print("\nDostepne klasy: wojownik, wlamywacz, zdrajca.\nWojownik: ma wieksza sile w walce.\nWlamywacz: lepiej rozbraja pulapki.\nZdrajca: ucieczka z pola walki czesciej konczy sie sukcesem.\n")
         while True:
             choice = input("Wybierz klase: ").casefold()
             if choice == "wojownik":
@@ -40,11 +58,33 @@ class Hero(Character):
             else:
                 print("Nie ma takiej klasy. Sprobuj ponownie: ")
     
-    def equip_item(self, item):
-        self.items.append(item)
+    def choice(self):   # zmiana nazwy?
+        while True:
+            hero_move = input('Wybierz swoj ruch (atak, obrona, ucieczka): ').casefold()
+            if hero_move in ['atak', 'obrona', 'ucieczka']:
+                return hero_move
+            else:
+                print('Nie ma takiego wyboru. Wpisz ponownie.')
+
+    def escape_try(self):
+        success = choices((True, False), weights=(self.escape_chance, 100-self.escape_chance), k=1)[0]
+        if success:
+            print("Udalo ci sie uciec.")
+        else:
+            print("Nie udalo ci sie uciec.")
+        return success
 
     def get_stats(self):
-        return {'life': self.life, 'strength': self.strength, 'escape_chance': self.escape_chance, 'disarm_chance': self.disarm_chance}
+        return {'life': self.life, 'strength': self.strength, 'shield': self.shield, 'escape_chance': self.escape_chance, 'disarm_chance': self.disarm_chance}
+    
+    def show_items(self):
+        str = 'Lista przedmiotow: '
+        for item in self.items:
+            str += f'{item.__str__()} '
+        return str
+
+    def equip_item(self, item):
+        self.items.append(item)
 
     def use_item(self, item):
         for stat, value in item.stats.items():
@@ -60,14 +100,12 @@ class Hero(Character):
 
             except Exception as e:
                 print(e)
+        
+        self.items.remove(item)
 
 
 
 class Enemy(Character):
-    def __init__(self, name: str):
-        super().__init__(name)
-        self.shield = (10, 20)
-    
     def change_life(self, life):
         self.life = life
     
@@ -76,3 +114,12 @@ class Enemy(Character):
         
     def change_shield(self, shield):
         self.shield = shield
+
+    def choice(self):
+        return choice(['attack', 'defence'])
+
+    def defence(self):
+        return randint(self.shield[0], self.shield[1])
+
+    def get_stats(self):
+        return {'life': self.life, 'strength': self.strength, 'shield': self.shield}
