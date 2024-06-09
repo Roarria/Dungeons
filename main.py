@@ -5,9 +5,10 @@ from rooms import Treasure, Trap, Fight
 from items import Item
 
 class Game_Manager:
-    def __init__(self):
+    def __init__(self, hero: Hero):
         self._start_time = None
         self.room_number = 0
+        self.hero = hero
 
     def go_next(self):
         while True:
@@ -21,39 +22,40 @@ class Game_Manager:
         self._start_time = time()
 
     def summarize(self):
+        print(f'PODSUMOWANIE:\n{self.hero}, {self.hero.get_class()}')
         print("Czas przejscia: ", time() - self._start_time)
-        # ... statystyki
+        print(self.hero.get_stats())
 
     def create_map(self):
         room_pool = [Treasure(difficulty=1) for _ in range(4)] + [Fight(difficulty=1) for _ in range(5)] + [Trap(difficulty=1) for _ in range(3)]
-        map = [choice(room_pool) for _ in range(9)]     # wybrane 9 pokoi (10 bedzie boss)
-        for room, nr in enumerate(map):    # nr = 0, 1, ...
-            pass
+        map = [choice(room_pool) for _ in range(9)]     # wybranie 9. pokoi
+        map.append(Fight(difficulty=4))     # dodanie walki z bossem
+        # zmiana poziomu trudnosci pokojow ?
         return map
 
     
 
-game_manager = Game_Manager()
-map = game_manager.create_map()
-
 hero = Hero(name = input("Podaj imie swojego bohatera: "))
 hero.class_choice()
-print()
+game_manager = Game_Manager(hero)
+map = game_manager.create_map()
 
-print(f'{hero}, zostales wrzucony do lochu. Przejdz przez 10 pokojow i pokonaj Straznika, aby sie wydostac. Gotowy? (wcisnij Enter)')
-game_manager.go_next()
+print(f'\n{hero}, zostales wrzucony do lochu. Przejdz przez 10 pokojow i pokonaj Straznika, aby sie wydostac. Gotowy? (wcisnij Enter)')
+game_manager.go_next()  # usunac metode?
 game_manager.start_clock()
 
-while game_manager.room_number <= 8:
+while game_manager.room_number <= 9:
+    print(f'============================== Pokoj {game_manager.room_number + 1} ==============================')
     result = map[game_manager.room_number].enter(hero)
 
     if result == 'game_over':
-        break # i co dalej?
+        print('Nie udalo ci sie opuscic lochu zywym.')
+        break
     if isinstance(result, Item):      # zebranie skarbu/nagrody po walce
         hero.equip_item(result)
     
     print()
-    print(hero.get_stats()) # wyswietlanie statystyk
+    print(hero.get_stats())
     print(hero.show_items())
     game_manager.room_number += 1
 
@@ -69,7 +71,7 @@ while game_manager.room_number <= 8:
                             item = i
                     if item:
                         hero.use_item(item)
-                        print(f'Uzyto {item_str}.')
+                        print(f'Uzyto {item_str}.\n')
                         print(hero.get_stats())
                         print(f'{hero.show_items()}\n')
                         break
@@ -81,8 +83,8 @@ while game_manager.room_number <= 8:
             else:
                 choice = input('Nie rozpoznano wyboru. Sprobuj ponownie: ')
 
-    print('Zbierz sily i przejdz dalej.\n') #zmiana napisu
+    input('Zbierz sily i przejdz dalej.\n')
 
-print("Koniec gry")
+print("Koniec gry\n")
 game_manager.summarize()
 

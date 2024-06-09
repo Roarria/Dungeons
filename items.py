@@ -8,7 +8,7 @@ class Item:
     def get_name(self):
         return self.name
 
-    def __str__(self):
+    def __str__(self):          # zmiana napisu - z ang na pl
         stats = ''
         for x, y in self.stats.items():
             if y >= 0:

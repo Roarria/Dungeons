@@ -3,7 +3,7 @@ from items import Item
 from random import choice, randint, choices
 
 class Character:
-    def __init__(self, name = None):
+    def __init__(self, name: str):
         self.name = name
         self.life = 100
         self.strength = (10, 20)
@@ -29,9 +29,9 @@ class Character:
 
 
 class Hero(Character):
-    def __init__(self, name = None):
+    def __init__(self, name: str):
         super().__init__(name)
-        self.hero_class = None  # czy potrzebne??
+        self.hero_class = None
         self.items = []
         self.escape_chance = 50
         self.disarm_chance = 50
@@ -73,9 +73,12 @@ class Hero(Character):
         else:
             print("Nie udalo ci sie uciec.")
         return success
-
+    
+    def get_class(self):
+        return self.hero_class
+    
     def get_stats(self):
-        return {'life': self.life, 'strength': self.strength, 'shield': self.shield, 'escape_chance': self.escape_chance, 'disarm_chance': self.disarm_chance}
+        return f'Statystyki bohatera: zycie - {self.life}, sila - {self.strength}, obrona - {self.shield}, szansa ucieczki - {self.escape_chance}, szansa rozbrojenia pulapki - {self.disarm_chance}'
     
     def show_items(self):
         str = 'Lista przedmiotow: '
@@ -106,6 +109,12 @@ class Hero(Character):
 
 
 class Enemy(Character):
+    def __init__(self, name: str, life: int, strength: tuple, shield: tuple):
+        self.name = name
+        self.life = life
+        self.strength = strength
+        self.shield = shield
+
     def change_life(self, life):
         self.life = life
     
@@ -116,10 +125,10 @@ class Enemy(Character):
         self.shield = shield
 
     def choice(self):
-        return choice(['attack', 'defence'])
+        return choice(['atak', 'obrona'])
 
     def defence(self):
         return randint(self.shield[0], self.shield[1])
 
     def get_stats(self):
-        return {'life': self.life, 'strength': self.strength, 'shield': self.shield}
+        return f'Statystyki przeciwnika: zycie - {self.life}, sila - {self.strength}, obrona - {self.shield}'
